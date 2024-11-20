@@ -25,6 +25,10 @@ app.get('/info', (req, res) => {
     res.status(200).json({ status: 'UP' });
 });
 
+app.get("/",async(req, res)=>{
+    res.json({ status: 'OK' });
+})
+
 app.listen(parseInt(process.env.PORT as string),()=>console.log(`Connected to port ${process.env.PORT}`))
 require('./eureka.client')
 
