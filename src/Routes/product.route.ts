@@ -1,5 +1,5 @@
 import express, { Request, Router } from "express"
-import { GetAllMyProducts, createProduct } from "../Controllers/product.router"
+import { GetAllMyProducts, createProduct, getProductById } from "../Controllers/product.router"
 import path from "path"
 import { CreateCategory, GetAllCategory } from "../Controllers/category.router"
 const multer=require("multer")
@@ -21,6 +21,8 @@ const storage = multer.diskStorage({
 app.post("/create",upload.array('images',10),createProduct)
 app.post("/category/create",upload.single('file'),CreateCategory)
 app.post("/get_all_products",GetAllMyProducts)
+app.get("/get_product_by_category",getProductById)
+
 app.get("/categories",GetAllCategory)
 
 

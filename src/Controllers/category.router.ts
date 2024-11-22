@@ -42,26 +42,7 @@ export const GetAllCategory=async(req:Request,res:Response)=>{
     try{
         const categories:CategoryType[]=await categoryModal.find()
 
-        if(categories){
-            const response=await Promise.all(categories.map(async(item)=>{
-                const imagepath=item.image[0].path
-                const absolutepath=path.resolve(imagepath)
-                const imageBuffer=await fs.readFile(absolutepath)
-                const imageBase64 = Array.from(new Uint8Array(imageBuffer));
-
-
-                return {
-                    name:item.name,
-                    image:imageBase64
-                }
-            }))
-
-            res.json(response).status(200)
-
-        }
-
-    
-
+        res.json(categories).status(200);
     }
     catch(error:any){
         res.json({error:'Internal server error',err:error.message})

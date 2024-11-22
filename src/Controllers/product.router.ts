@@ -1,6 +1,7 @@
 import  {Request,Response} from "express"
 import Product from "../Modal/product.modal"
 import categoryModal from "../Modal/category.modal"
+import mongoose from "mongoose"
 
 export const createProduct=async(req:Request,res:Response)=>{        
     try{
@@ -50,6 +51,39 @@ export const GetAllMyProducts=async(req:Request,res:Response)=>{
         res.status(200).json(data)
     } catch (error:any) {
         res.status(400).json({error:error.message})
+    }
+}
+
+export const getProductById=async(req:Request,res:Response)=>{
+    try {
+        console.log("hit",req.query.id);
+        // if (!mongoose.Types.ObjectId.isValid('673e11ef318501c8860f6867')) {
+        //    throw new Error("Invald category id")
+        // }
+        
+        const data=await Product.aggregate([
+            {$match:{
+                "category":{$in:[req.query.id]}
+            }},
+            {
+                $project:{
+                    _id:0,
+                    name:1,
+                    price:1,
+                    images:1
+                }
+            }
+        ])
+        const category=await categoryModal.findById(req.query.id)
+        if(category){
+            const response={"category_name":category.name,"products":data}
+            res.status(200).json(response)
+        }
+        else{
+            throw new Error("Category not found")
+        }
+    } catch (error:any) {
+        res.status(400).json({error: "Unable to load data",err:error.message})
     }
 }
 

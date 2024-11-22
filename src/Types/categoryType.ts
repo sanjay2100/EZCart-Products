@@ -7,6 +7,7 @@ interface imageType{
 }
 
 export interface CategoryType{
+    _id:String
     name:string
     image:[imageType]
 }
