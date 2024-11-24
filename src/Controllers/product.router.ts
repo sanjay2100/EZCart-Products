@@ -60,6 +60,8 @@ export const getProductById=async(req:Request,res:Response)=>{
         // if (!mongoose.Types.ObjectId.isValid('673e11ef318501c8860f6867')) {
         //    throw new Error("Invald category id")
         // }
+
+        const page=Number(req.query.page?req.query.page:1)
         
         const data=await Product.aggregate([
             {$match:{
@@ -67,16 +69,18 @@ export const getProductById=async(req:Request,res:Response)=>{
             }},
             {
                 $project:{
-                    _id:0,
+                    _id:1,
                     name:1,
                     price:1,
                     images:1
                 }
             }
         ])
+        const total=data.length
+        data.slice(page-10 ,page*10)
         const category=await categoryModal.findById(req.query.id)
         if(category){
-            const response={"category_name":category.name,"products":data}
+            const response={"category_name":category.name,"products":data,"total":total}
             res.status(200).json(response)
         }
         else{
@@ -84,6 +88,17 @@ export const getProductById=async(req:Request,res:Response)=>{
         }
     } catch (error:any) {
         res.status(400).json({error: "Unable to load data",err:error.message})
+    }
+}
+
+
+export const GetItemById=async(req:Request,res:Response)=>{
+    try{
+        const data=await Product.findById(req.body.product_id);
+        res.json(data).status(200)
+    }
+    catch(error){
+        res.status(400).json({error:"Internal server error",message:error})
     }
 }
 
