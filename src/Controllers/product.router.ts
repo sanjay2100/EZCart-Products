@@ -2,11 +2,12 @@ import  {Request,Response} from "express"
 import Product from "../Modal/product.modal"
 import categoryModal from "../Modal/category.modal"
 import mongoose from "mongoose"
+import { CustomImageFile } from "../Types/ProductTypes"
 
 export const createProduct=async(req:Request,res:Response)=>{        
     try{
         const category=await categoryModal.findById(req.body.category)
-        const images=req.files as Express.Multer.File[]
+        const images:CustomImageFile[]=req.files as CustomImageFile[]
 
         console.log(req);
         
@@ -21,16 +22,21 @@ export const createProduct=async(req:Request,res:Response)=>{
                 user_id:req.headers.username
             })
 
-            if (images) {
+            if (images&& Array.isArray(images)) {
                 images.forEach((element:any) => {
-                    const file = {
-                        fieldname: 'images',
-                        filename: element.filename,
-                        originalname: element.originalname,
-                        mimetype: element.mimetype,
-                        path: element.path,
-                    };
-                    (product.images as any[]).push(file);
+                    if (element && element.filename && element.originalname && element.mimetype && element.path&&Array.isArray(product.images)) {
+                        const file:CustomImageFile = {
+                            fieldname: 'images',
+                            filename: element.filename,
+                            originalname: element.originalname,
+                            mimetype: element.mimetype,
+                            path: element.path,
+                            size:element.size
+                        };
+                        product.images.push(file)
+                    } else {
+                        console.log('Invalid image element:', element);
+                    }
                 });
             }
             await product.save()
@@ -50,6 +56,25 @@ export const GetAllMyProducts=async(req:Request,res:Response)=>{
         const data=await Product.find({"user_id":req.headers.username})
         res.status(200).json(data)
     } catch (error:any) {
+        res.status(400).json({error:error.message})
+    }
+}
+
+export const GetNewArivals=async(req:Request,res:Response)=>{
+    try{
+        const data=await Product.find()
+        if(data.length>5){
+            let split=data.slice(data.length-5,data.length).reverse()
+            res.status(200).json(split)
+        }
+        else{
+            res.status(200).json(data)
+
+        }
+        
+
+    }
+    catch(error:any){
         res.status(400).json({error:error.message})
     }
 }

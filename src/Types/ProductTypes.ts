@@ -6,3 +6,13 @@ interface ProductSchemaType{
     quantity:Number
     images:[Object]
 }
+
+
+export interface CustomImageFile {
+    fieldname: string;
+    filename: string;
+    originalname: string;
+    mimetype: string;
+    path: string;
+    size: number;
+}
