@@ -38,7 +38,7 @@ client.start((error:any) => {
     }
 });
 
-// Handle client shutdown gracefully
+// Handle client shutdown 
 process.on('SIGINT', () => {
     client.stop();
     console.log('Eureka client stopped');
