@@ -128,6 +128,16 @@ export const GetItemById=async(req:Request,res:Response)=>{
 }
 
 
+export const GetAllItems=async(req:Request,res:Response)=>{
+    try {
+        const data=await Promise.all(req.body.product_ids.map((item:string)=> Product.findById(item)))
+        res.json({products:data}).status(200)
+    } catch (error) {
+        res.status(400).json({message:"Something went wrong",error:error})
+    }
+}
+
+
 export const editStocks=async(req:Request,res:Response)=>{
     try{
         const product_id:string=req.body.product_id
