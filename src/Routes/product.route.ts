@@ -1,5 +1,5 @@
 import express, { Request, Router } from "express"
-import { GetAllItems, GetAllMyProducts, GetItemById, GetNewArivals, createProduct, getProductById } from "../Controllers/product.router"
+import { EditStocks, GetAllItems, GetAllMyProducts, GetItemById, GetNewArivals, GetTopSellingProducts, createProduct, getProductById } from "../Controllers/product.router"
 import path from "path"
 import { CreateCategory, GetAllCategory } from "../Controllers/category.router"
 const multer=require("multer")
@@ -25,6 +25,8 @@ app.get("/get_product_by_category",getProductById)
 app.post("/get_product",GetItemById)
 app.get("/categories",GetAllCategory)
 app.post("/get_all_products_list",GetAllItems)
+app.post("/deduct_stock",EditStocks )
+app.get("/get_max_selling_products",GetTopSellingProducts)
 
 app.get("/get_new_arrival",GetNewArivals)
 

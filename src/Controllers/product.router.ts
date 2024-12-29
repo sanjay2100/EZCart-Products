@@ -1,8 +1,11 @@
 import  {Request,Response} from "express"
 import Product from "../Modal/product.modal"
 import categoryModal from "../Modal/category.modal"
-import mongoose from "mongoose"
 import { CustomImageFile } from "../Types/ProductTypes"
+import axios from "axios"
+import dotenv from "dotenv"
+
+dotenv.config()
 
 export const createProduct=async(req:Request,res:Response)=>{        
     try{
@@ -59,6 +62,8 @@ export const GetAllMyProducts=async(req:Request,res:Response)=>{
         res.status(400).json({error:error.message})
     }
 }
+
+
 
 export const GetNewArivals=async(req:Request,res:Response)=>{
     try{
@@ -138,16 +143,65 @@ export const GetAllItems=async(req:Request,res:Response)=>{
 }
 
 
-export const editStocks=async(req:Request,res:Response)=>{
+export const EditStocks=async(req:Request,res:Response)=>{
     try{
-        const product_id:string=req.body.product_id
-        const quantity:number=req.body.quantity
-        const updatedProduct=await Product.findByIdAndUpdate(product_id,{$inc:{quantity:quantity}},{new:true})
-        if(!updatedProduct){
-            return res.status(404).json({message:"Product not found"})
-        }
-        res.status(200).json({message:"Product updated successfully",product:updatedProduct})
+        const product:any[]=req.body
+
+        console.log(product);
+        
+        
+        product.forEach(async(item)=>{
+            const existing=await Product.findById(item.productid)
+            if(existing){
+                if(item.quantity<existing.quantity){
+                    let changedQty=existing.quantity-item.quantity
+                    let saved=await Product.findByIdAndUpdate(item.productid,{quantity:changedQty},{new:true})
+                    console.log(saved);
+                    
+                    res.status(200).json({message:"Product updated successfully"})
+                }
+                else{
+                    res.status(400).json({message:"Insuffifient stock"})
+                }
+                
+            }
+            else{
+                res.status(400).json({message:"No product founf for id "+item.productid})
+            }
+            
+        })
+        
     }catch(error:any){
-        res.status(400).json({error:error.message})
+        res.status(400).json({message:error.message})
     }
 }
+
+export const GetTopSellingProducts=async(req:Request,res:Response)=>{
+    
+    try {
+        const orders=await axios.get(`${process.env.GATEWAY_URL}/order/get_max_orders`,{
+            headers:{
+                Authorization:`${req.headers.authorization}`
+            }
+        })
+        if(orders.data&&orders.data.orders&&orders.data.orders.length>0){
+            let products=await Promise.all(orders.data.orders.map(async(item:string)=>{
+                return Product.findById(item)
+                .then((response:any)=>{
+                    return response
+                    
+                })
+            }))
+            console.log(products);
+            res.status(200).json({products:products})
+        }
+        else{
+            res.status(400).json({message:"No products sold yet"})
+        }
+        
+    } catch (error) {
+        res.status(400).json({message:error})
+    }
+}
+
+
