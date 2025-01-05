@@ -63,6 +63,34 @@ export const GetAllMyProducts=async(req:Request,res:Response)=>{
     }
 }
 
+export const GetAllMyProductIds=async(req:Request,res:Response)=>{
+    try {
+        const data=await Product.aggregate([
+            {
+                $match:{
+                    "user_id":req.params.id
+                }
+            },
+            {
+                $project:{
+                    _id:1
+                }
+            }
+        ])
+        console.log(data);
+        if(data.length>0){
+            let sub=data.map((item)=>item._id)
+            console.log(sub);
+            res.status(200).json(sub)
+            
+        }
+        
+        
+    } catch (error:any) {
+        res.status(400).json({error:error.message})
+    }
+}
+
 
 
 export const GetNewArivals=async(req:Request,res:Response)=>{
